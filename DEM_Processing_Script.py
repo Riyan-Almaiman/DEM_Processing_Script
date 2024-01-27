@@ -124,21 +124,6 @@ def createTRI(mosaic_path, tri_directory, shp_base_directory):
                                 gdf = gpd.GeoDataFrame(geometry=points, crs=src.crs)
                                 gdf.to_file(shp_output_path)
 
-def create_shp_files(tri_output_path, shp_base_directory, dem_base_name):
-    shp_directories = {threshold: os.path.join(shp_base_directory, f"threshold_{threshold}") for threshold in thresholds}
-    for threshold, shp_directory in shp_directories.items():
-        os.makedirs(shp_directory, exist_ok=True)
-        shp_output_path = os.path.join(shp_directory, f"{dem_base_name}_wells_{threshold}.shp")
-        if not os.path.exists(shp_output_path):
-            with rasterio.open(tri_output_path) as src:
-                tri_data = src.read(1)
-                high_ruggedness_pixels = tri_data > threshold
-                rows, cols = np.where(high_ruggedness_pixels)
-                if rows.size and cols.size:
-                    xs, ys = rasterio.transform.xy(src.transform, rows, cols, offset='center')
-                    points = [Point(x, y) for x, y in zip(xs, ys)]
-                    gdf = gpd.GeoDataFrame(geometry=points, crs=src.crs)
-                    gdf.to_file(shp_output_path)
 
 
 def check_new_folders_and_process(base_dir, check_interval=1800):
